@@ -18,7 +18,8 @@ public class Sort extends JPanel{
     private int index;
     private Color colorB;
     private Color colorF;
-    private JButton button;
+    private ButtonsAction buttonsAction = new ButtonsAction();
+    private ButtonsActionSort buttonsActionSort = new ButtonsActionSort();
 
     public Sort() {
         //create X buttons with random number and list of this numbers
@@ -62,8 +63,8 @@ public class Sort extends JPanel{
     }
 
     private void createListOfNumberButtons () {
-        for (int i = 0, y = 30, x = 40; i < Main.userNumber; i++) {
-            button = new JButton();
+        for (int i = 0, y = 30, x = 40; i < Main.userNumber; i++, y+=30) {
+            JButton button = new JButton();
             if (i == 10) {
                 x = 110;
                 y = 30;
@@ -76,14 +77,13 @@ public class Sort extends JPanel{
             button.setBackground(Color.BLUE);
             button.setForeground(Color.WHITE);
             button.setFocusable(false);
-            button.addActionListener(new ButtonsAction());
+            button.addActionListener(buttonsAction);
             buttons.add(button);
-            y += 30;
         }
         checkForThirty();
     }
 
-    private void quickSort (ArrayList < JButton > buttons,int low, int high){
+    private void quickSort (ArrayList < JButton > buttons,int low, int high) {
         if (buttons.isEmpty())
             return;
         if (low == high) {
@@ -96,28 +96,26 @@ public class Sort extends JPanel{
         index = middle;
         colorB = Color.DARK_GRAY;
         colorF = Color.WHITE;
-        repaint();
+        buttons.get(index).doClick();
         while (i <= j) {
             index = i;
             colorB = Color.GREEN;
             colorF = Color.ORANGE;
-            repaint();
+            buttons.get(index).doClick();
             while (Integer.parseInt(buttons.get(i).getText()) < opora) {
                 index = i;
-                colorB = Color.GREEN;
                 colorF = Color.WHITE;
-                repaint();
+                buttons.get(index).doClick();
                 i++;
             }
             index = j;
-            colorB = Color.GREEN;
+
             colorF = Color.ORANGE;
-            repaint();
+            buttons.get(index).doClick();
             while (Integer.parseInt(buttons.get(j).getText()) > opora) {
                 index = j;
-                colorB = Color.GREEN;
                 colorF = Color.WHITE;
-                repaint();
+                buttons.get(index).doClick();
                 j--;
             }
             if (i <= j) {
@@ -127,9 +125,9 @@ public class Sort extends JPanel{
                 index = i;
                 colorB = Color.BLUE;
                 colorF = Color.WHITE;
-                repaint();
+                buttons.get(index).doClick();
                 index = j;
-                repaint();
+                buttons.get(index).doClick();
                 i++;
                 j--;
             }
@@ -142,7 +140,7 @@ public class Sort extends JPanel{
             index = i;
             colorB = Color.BLUE;
             colorF = Color.WHITE;
-            repaint();
+            buttons.get(index).doClick();
         }
     }
 
@@ -159,28 +157,25 @@ public class Sort extends JPanel{
         index = middle;
         colorB = Color.DARK_GRAY;
         colorF = Color.WHITE;
-        repaint();
+        buttons.get(index).doClick();
         while (i <= j) {
             index = i;
             colorB = Color.GREEN;
             colorF = Color.ORANGE;
-            repaint();
+            buttons.get(index).doClick();
             while (Integer.parseInt(buttons.get(i).getText()) > opora) {
                 index = i;
-                colorB = Color.GREEN;
                 colorF = Color.WHITE;
-                repaint();
+                buttons.get(index).doClick();
                 i++;
             }
             index = j;
-            colorB = Color.GREEN;
             colorF = Color.ORANGE;
-            repaint();
+            buttons.get(index).doClick();
             while (Integer.parseInt(buttons.get(j).getText()) < opora) {
                 index = j;
-                colorB = Color.GREEN;
-                colorF = Color.ORANGE;
-                repaint();
+                colorF = Color.WHITE;
+                buttons.get(index).doClick();
                 j--;
             }
             if (i <= j) {
@@ -190,9 +185,9 @@ public class Sort extends JPanel{
                 index = i;
                 colorB = Color.BLUE;
                 colorF = Color.WHITE;
-                repaint();
+                buttons.get(index).doClick();
                 index = j;
-                repaint();
+                buttons.get(index).doClick();
                 i++;
                 j--;
             }
@@ -205,15 +200,8 @@ public class Sort extends JPanel{
             index = k;
             colorB = Color.BLUE;
             colorF = Color.WHITE;
-            repaint();
+            buttons.get(index).doClick();
         }
-    }
-
-    @Override
-    public void paintComponents(Graphics g) {
-        super.paintComponents(g);
-        buttons.get(index).setBackground(colorB);
-        buttons.get(index).setForeground(colorF);
     }
 
     class SortedAction implements ActionListener{
@@ -223,13 +211,27 @@ public class Sort extends JPanel{
         public void actionPerformed(ActionEvent actionEvent) {
             count++; //for each second click
             if (count % 2 == 0) {
-                for (int i = 0; i < buttons.size(); i++)
+                for (int i = 0; i < buttons.size(); i++) {
                     buttons.get(i).setBackground(Color.GREEN);
+                    buttons.get(i).removeActionListener(buttonsAction);
+                    buttons.get(i).addActionListener(buttonsActionSort);
+                }
                 quickSortRe(buttons, low, high);
+                for (int i = 0; i < buttons.size(); i++) {
+                    buttons.get(i).removeActionListener(buttonsActionSort);
+                    buttons.get(i).addActionListener(buttonsAction);
+                }
             } else {
-                for (int i = 0; i < buttons.size(); i++)
+                for (int i = 0; i < buttons.size(); i++) {
                     buttons.get(i).setBackground(Color.GREEN);
+                    buttons.get(i).removeActionListener(buttonsAction);
+                    buttons.get(i).addActionListener(buttonsActionSort);
+                }
                 quickSort(buttons, low, high);
+                for (int i = 0; i < buttons.size(); i++) {
+                    buttons.get(i).removeActionListener(buttonsActionSort);
+                    buttons.get(i).addActionListener(buttonsAction);
+                }
             }
         }
     }
@@ -241,10 +243,23 @@ public class Sort extends JPanel{
         }
     }
 
+    class ButtonsActionSort implements ActionListener{
+
+        @Override
+        public void actionPerformed(ActionEvent actionEvent) {
+            JButton buttonEvent = (JButton) actionEvent.getSource();
+            buttonEvent.setBackground(colorB);
+            buttonEvent.setForeground(colorF);
+            repaint();
+            validate();
+        }
+    }
+
     class ButtonsAction implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent actionEvent) {
-            if (Integer.parseInt(button.getText()) <= 30) {
+            JButton buttonEvent = (JButton) actionEvent.getSource();
+            if (Integer.parseInt(buttonEvent.getText()) <= 30) {
                 for (int i = 0; i < buttons.size(); i++) {
                     buttons.get(i).setText(String.valueOf(random.nextInt(1001)));
                 }
